@@ -4,10 +4,10 @@ global data = "C:\Users\d57917il\Documents\1paper1\5_ENOE_databases\Bases ENOE"
 global append = "C:\Users\d57917il\Documents\GitHub\local_structural_transformation\data_transformation\data_append"
 
 local X /// 
-105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 /// 
-205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 /// 
-305 306 307 308 309 310 311 312 313 314 315 316 317 318 319 /// 
-405 406 407 408 409 410 411 412 413 414 415 416 417 418 419 
+105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 /// datasets from the 1st quarter of 2005 to 2019 
+205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 /// datasets from the 2nd quarter of 2005 to 2019
+305 306 307 308 309 310 311 312 313 314 315 316 317 318 319 /// datasets from the 3rd quarter of 2005 to 2019
+405 406 407 408 409 410 411 412 413 414 415 416 417 418 419 // datasets from the 4th quarter of 2005 to 2019
 
 
 foreach year_quarter of local X {
