@@ -67,29 +67,42 @@ replace unsp_sector=0 if P4A_Sector!=4
 	* Estimate sectoral distribution of employment at the municipal level 
 preserve
 collapse (mean) agri_sector [fweight=fac], by(per_ent_mun) 
-rename agri_sector agrishare_mun
 save "$store_collapse/agri_`year_quarter'.dta", replace
 restore
 
 preserve
 collapse (mean) ind_sector [fweight=fac], by(per_ent_mun) 
-rename ind_sector indushare_mun
 save "$store_collapse/indu_`year_quarter'.dta", replace
 restore
 
 preserve
 collapse (mean) serv_sector [fweight=fac], by(per_ent_mun) 
-rename serv_sector servishare_mun
 save "$store_collapse/serv_`year_quarter'.dta", replace
 restore
 
 preserve
 collapse (mean) unsp_sector [fweight=fac], by(per_ent_mun) 
-rename unsp_sector unspeshare_mun
 save "$store_collapse/unsp_`year_quarter'.dta", replace
-restore
-	
-clear	
+restore	
+
+
+clear
+use "$store_collapse/agri_`year_quarter'.dta", clear
+quietly merge 1:1 per_ent_mun using "$store_collapse/indu_`year_quarter'.dta", force
+rename _merge merge_indu
+quietly merge 1:1 per_ent_mun using "$store_collapse/serv_`year_quarter'.dta", force
+rename _merge merge_serv
+quietly merge 1:1 per_ent_mun using "$store_collapse/unsp_`year_quarter'.dta", force 
+rename _merge merge_unsp
+generate total_sde = agri_sector + ind_sector + serv_sector + unsp_sector // Data quality check: This variable should always be equal to 100. 
+save "$store_collapse/sde_`year_quarter'.dta", replace
 }
 
 
+	* Now clear everything and start a merge for each dataset of each quarter and year. 
+ 	* The result will be an sde dataset for each quarter, and the elimination of the agri, indu, serv and unsp datasets.
+	* Before doing that you need to confirm that the total_sde variable for each per_ent_mun is equal to 100
+	* Then you append all the datasets in one, and eliminate the sde datasets. 
+	* Then you re-order the per_munt_ent para que indique primero el estado y despues el municipio
+	* Then you order all the datasets to see para ver en orden el estado 1, municipio X, mientras que el ultimo en la lista sera el estado 32, municipio X.
+	
