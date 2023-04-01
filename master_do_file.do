@@ -123,7 +123,7 @@ tab merge_unspecified // Data quality check: all observations matched
 drop merge_unspecified
 
 
-	* 12) Confirm that all sectors for each municipality are equal to 100%
+	* 12) Transform the estimation of each economic sector from decimals to percentual points. 
 gen one_agri = (100 * agrishare_mun)
 gen one_ind = (100 * indushare_mun)
 gen one_serv = (100 * servishare_mun)
@@ -134,7 +134,7 @@ rename one_ind sde_mun_indu
 rename one_serv sde_mun_serv
 rename one_unsp sde_mun_unsp
 
-	* 13) Data quality check: Generate a variable to verify that the sum of the 4 sde variables are equal to 100. 
+	* 13) Data quality check: Generate a variable to verify later that the sum of the 4 sde variables in each municipality at a certain year/quarter are equal to 100. 
 gen total_sde_mun = sde_mun_agri + sde_mun_indu + sde_mun_serv + sde_mun_unsp
 
 save "$store_collapse/sde_`year_quarter'.dta", replace
