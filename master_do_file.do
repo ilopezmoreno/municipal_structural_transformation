@@ -32,14 +32,6 @@ keep ent mun per p4a fac sex clase1
 replace ent=33 if ent==10 // Durango, with entity code 10, will now have the entity code 33 
 replace ent=34 if ent==20 // Oaxaca, with entity code 20, will now have the entity code 34
 replace ent=35 if ent==30 // Veracruz, with entity code 30, will now have the entity code 35
-	
-	* 6) Specify labels for each state in Mexico.
-label define ent 1 "Aguascalientes" 2 "Baja California" 3 "Baja California Sur" 4 "Campeche" 5 "Coahuila" 6 "Colima" /// 
-7 "Chiapas" 8 "Chihuahua" 9 "Mexico City"  11 "Guanajuato" 12 "Guerrero" 13 "Hidalgo" 14 "Jalisco" 15 "Edo. Mex" /// 
-16 "Michoacan" 17 "Morelos" 18 "Nayarit" 19 "Nuevo Leon"  21 "Puebla" 22 "Queretaro" 23 "Quintana Roo" /// 
-24 "San Luis Potosi" 25 "Sinaloa" 26 "Sonora" 27 "Tabasco" 28 "Tamaulipas" 29 "Tlaxcala" /// 
-31 "Yucatan" 32 "Zacatecas" 33 "Durango" 34 "Veracruz" 35 "Oaxaca", replace
-label value ent ent
 
 	* 7) Generate a unique identification variable for each mexican municipality 
 egen per_ent_mun = concat(per mun ent), punct(.) // unique_id for each municipality where "ent" represents entity and "mun" represents municipality. 
@@ -158,84 +150,70 @@ save "$store_collapse/sde_`year_quarter'.dta", replace
 
 clear 
 use "$store_collapse\sde_105.dta"
-append using "$store_collapse\sde_106.dta"
-append using "$store_collapse\sde_107.dta"
-append using "$store_collapse\sde_108.dta"
-append using "$store_collapse\sde_109.dta"
-append using "$store_collapse\sde_110.dta"
-append using "$store_collapse\sde_111.dta"
-append using "$store_collapse\sde_112.dta"
-append using "$store_collapse\sde_113.dta"
-append using "$store_collapse\sde_114.dta"
-append using "$store_collapse\sde_115.dta"
-append using "$store_collapse\sde_116.dta"
-append using "$store_collapse\sde_117.dta"
-append using "$store_collapse\sde_118.dta"
-append using "$store_collapse\sde_119.dta"
-append using "$store_collapse\sde_206.dta"
-append using "$store_collapse\sde_207.dta"
-append using "$store_collapse\sde_208.dta"
-append using "$store_collapse\sde_209.dta"
-append using "$store_collapse\sde_210.dta"
-append using "$store_collapse\sde_211.dta"
-append using "$store_collapse\sde_212.dta"
-append using "$store_collapse\sde_213.dta"
-append using "$store_collapse\sde_214.dta"
-append using "$store_collapse\sde_215.dta"
-append using "$store_collapse\sde_216.dta"
-append using "$store_collapse\sde_217.dta"
-append using "$store_collapse\sde_218.dta"
-append using "$store_collapse\sde_219.dta"
-append using "$store_collapse\sde_306.dta"
-append using "$store_collapse\sde_307.dta"
-append using "$store_collapse\sde_308.dta"
-append using "$store_collapse\sde_309.dta"
-append using "$store_collapse\sde_310.dta"
-append using "$store_collapse\sde_311.dta"
-append using "$store_collapse\sde_312.dta"
-append using "$store_collapse\sde_313.dta"
-append using "$store_collapse\sde_314.dta"
-append using "$store_collapse\sde_315.dta"
-append using "$store_collapse\sde_316.dta"
-append using "$store_collapse\sde_317.dta"
-append using "$store_collapse\sde_318.dta"
-append using "$store_collapse\sde_319.dta"
-append using "$store_collapse\sde_406.dta"
-append using "$store_collapse\sde_407.dta"
-append using "$store_collapse\sde_408.dta"
-append using "$store_collapse\sde_409.dta"
-append using "$store_collapse\sde_410.dta"
-append using "$store_collapse\sde_411.dta"
-append using "$store_collapse\sde_412.dta"
-append using "$store_collapse\sde_413.dta"
-append using "$store_collapse\sde_414.dta"
-append using "$store_collapse\sde_415.dta"
-append using "$store_collapse\sde_416.dta"
-append using "$store_collapse\sde_417.dta"
-append using "$store_collapse\sde_418.dta"
-append using "$store_collapse\sde_419.dta"
+
+forvalues i=106(1)119 {
+append using "$store_collapse\sde_`i'.dta"	
+}
+
+forvalues i=205(1)219 {
+append using "$store_collapse\sde_`i'.dta"	
+}
+
+forvalues i=305(1)319 {
+append using "$store_collapse\sde_`i'.dta"	
+}
+
+forvalues i=405(1)419 {
+append using "$store_collapse\sde_`i'.dta"	
+}
+
+split per_ent_mun, parse(.) // Split variable pet_ent_mun into three variables 
+rename per_ent_mun1 per // First split variable refers to year_quarter
+rename per_ent_mun2 municipality // Second split variable refers to municipality 
+rename per_ent_mun3 entity_name // Third split variable referes to federal entity, also known as State
+egen ent_mun = concat(municipality entity_name), punct(.) // unique_id for each municipality  
+rename sde_mun_agri pct_agri // % of agricultural jobs in each municipality in their respective year_quarter
+rename sde_mun_indu pct_indu // % of industrial jobs in each municipality in their respective year_quarter
+rename sde_mun_serv pct_serv // % of service jobs in each municipality in their respective year_quarter
+rename sde_mun_unsp pct_unsp // % of unspecified jobs in each municipality in their respective year_quarter
+rename total_sde_mun total_sde // Sectoral Distribution of Employment in each municipality in their respective year_quarter. Note: it should always be equal to 100
+tab total_sde // Data quality check: All values equal to 100 
+drop total_sde // Drop this variable as it is no longer necessary. 
+generate year = substr(per,2,2) // Obtain the year of the survey using the last two digits of the variable "per"
+generate quarter = substr(per,1,1) // Obtain the quarter of the survey using the last two digits of the variable "per"
+order entity_name municipality year quarter  // Order variables 
+order per_ent_mun per, last // Order variables 
+sort entity_name municipality year quarter // Sort variables 
+
+destring entity_name, replace
+* Return entity codes to their original values. 
+replace entity_name=10 if entity_name==33 // Durango, with entity code 10, will now have the entity code 33 
+replace entity_name=20 if entity_name==34 // Oaxaca, with entity code 20, will now have the entity code 34
+replace entity_name=30 if entity_name==35 // Veracruz, with entity code 30, will now have the entity code 35
+* Specify labels for each state in Mexico.
+label define entity_name 1 "Aguascalientes" 2 "Baja California" 3 "Baja California Sur" 4 "Campeche" 5 "Coahuila" 6 "Colima" /// 
+7 "Chiapas" 8 "Chihuahua" 9 "Mexico City"  11 "Guanajuato" 12 "Guerrero" 13 "Hidalgo" 14 "Jalisco" 15 "Edo. Mex" /// 
+16 "Michoacan" 17 "Morelos" 18 "Nayarit" 19 "Nuevo Leon"  21 "Puebla" 22 "Queretaro" 23 "Quintana Roo" /// 
+24 "San Luis Potosi" 25 "Sinaloa" 26 "Sonora" 27 "Tabasco" 28 "Tamaulipas" 29 "Tlaxcala" /// 
+31 "Yucatan" 32 "Zacatecas" 10 "Durango" 20 "Oaxaca" 30 "Veracruz", replace
+label value entity_name entity_name
+tab entity_name
+
+destring quarter, replace
+destring year, replace 
+forvalues i=5(1)9 {
+replace year=200`i' if year==`i' 		
+}
+forvalues i=10(1)19 {
+replace year=20`i' if year==`i' 		
+}
+
+* Give a number to each of the municipalities in the sample. 
+egen count_entmun = group(ent_mun)
+summarize count_entmun
+* Result : There are 1827 municipalities in the dataset.
+
+
+
+
 save "$store_collapse/total_sde_municipal_2005_2019", replace
-
-
-
-
-
-
-
-clear 
-use "$store_collapse/total_sde_municipal_2005_2019"
-
-split per_ent_mun, parse(.) 
-rename per_ent_mun1 per
-rename per_ent_mun2 municipio
-rename per_ent_mun3 entidad
-rename sde_mun_agri pct_agri
-rename sde_mun_indu pct_indu
-rename sde_mun_serv pct_serv
-rename sde_mun_unsp pct_unsp
-rename total_sde_mun total_sde
-generate anio = substr(per,2,2)
-generate trimestre = substr(per,1,1)
-order ent mun anio trimestre 
-order per_ent_mun per, last
-sort ent mun anio trimestre
