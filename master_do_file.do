@@ -28,7 +28,7 @@ keep if _merge==3
 	* 4) Keep relevant variables 
 keep ent mun per p4a fac sex clase1
 
-	* 5) Change values of states that end with 0. If you don't do this, the variable "ent_mun" will erase zeros and they will be some municipalities that will have the same code.  
+	* 5) Change values of states that end with 0. If you don't do this, during the creation of the variable "ent_mun", those entities that end with 0 will be confused to those that doesn't end with 0. i.e. 1&10 2&20 3&30  
 replace ent=33 if ent==10 // Durango, with entity code 10, will now have the entity code 33 
 replace ent=34 if ent==20 // Oaxaca, with entity code 20, will now have the entity code 34
 replace ent=35 if ent==30 // Veracruz, with entity code 30, will now have the entity code 35
@@ -123,25 +123,19 @@ tab merge_unspecified // Data quality check: all observations matched
 drop merge_unspecified
 
 
-* Confirm that all sectors for each municipality are equal to 100%
-
+	* 12) Confirm that all sectors for each municipality are equal to 100%
 gen one_agri = (100 * agrishare_mun)
 gen one_ind = (100 * indushare_mun)
 gen one_serv = (100 * servishare_mun)
 gen one_unsp = (100 * unspeshare_mun)
-
 drop agrishare_mun indushare_mun servishare_mun unspeshare_mun
 rename one_agri sde_mun_agri
 rename one_ind sde_mun_indu
 rename one_serv sde_mun_serv
 rename one_unsp sde_mun_unsp
 
-
-// Data quality checks
-
-* With the following code, I want to evaluate if the sum between the four variables created are equal to 100.
+	* 13) Data quality check: Generate a variable to verify that the sum of the 4 sde variables are equal to 100. 
 gen total_sde_mun = sde_mun_agri + sde_mun_indu + sde_mun_serv + sde_mun_unsp
-tab total_sde_mun 
 
 save "$store_collapse/sde_`year_quarter'.dta", replace
 }
@@ -176,9 +170,8 @@ rename sde_mun_agri pct_agri // % of agricultural jobs in each municipality in t
 rename sde_mun_indu pct_indu // % of industrial jobs in each municipality in their respective year_quarter
 rename sde_mun_serv pct_serv // % of service jobs in each municipality in their respective year_quarter
 rename sde_mun_unsp pct_unsp // % of unspecified jobs in each municipality in their respective year_quarter
-rename total_sde_mun total_sde // Sectoral Distribution of Employment in each municipality in their respective year_quarter. Note: it should always be equal to 100
-tab total_sde // Data quality check: All values equal to 100 
-drop total_sde // Drop this variable as it is no longer necessary. 
+tab total_sde_mun // Data quality check: All values equal to 100. Therefore, the variable can be dropped  
+drop total_sde_mun // Drop this variable as it is no longer necessary. 
 generate year = substr(per,2,2) // Obtain the year of the survey using the last two digits of the variable "per"
 generate quarter = substr(per,1,1) // Obtain the quarter of the survey using the last two digits of the variable "per"
 order entity_name municipality year quarter  // Order variables 
@@ -212,8 +205,5 @@ replace year=20`i' if year==`i'
 egen count_entmun = group(ent_mun)
 summarize count_entmun
 * Result : There are 1827 municipalities in the dataset.
-
-
-
 
 save "$store_collapse/total_sde_municipal_2005_2019", replace
